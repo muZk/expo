@@ -141,7 +141,11 @@ export interface DailyTriggerInput {
   minute: number;
   repeats: true;
 }
-export type DateTriggerInput = Date | number;
+export type YearlyTriggerInput = {
+  repeats?: boolean;
+  date: Date | number;
+};
+export type DateTriggerInput = Date | number | YearlyTriggerInput;
 
 export type NotificationTriggerInput =
   | null
