@@ -2,6 +2,7 @@ package expo.modules.notifications.notifications.triggers;
 
 import android.os.Parcel;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import androidx.annotation.Nullable;
