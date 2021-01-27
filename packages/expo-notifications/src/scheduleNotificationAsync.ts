@@ -1,3 +1,4 @@
+import { Platform } from '@unimodules/core';
 import uuidv4 from 'uuid/v4';
 
 import NotificationScheduler from './NotificationScheduler';
@@ -6,6 +7,7 @@ import {
   NotificationRequestInput,
   NotificationTriggerInput,
   DailyTriggerInput,
+  YearlyTriggerInput,
   CalendarTriggerInput,
   TimeIntervalTriggerInput,
 } from './Notifications.types';
@@ -35,6 +37,24 @@ function parseTrigger(userFacingTrigger: NotificationTriggerInput): NativeNotifi
     return { type: 'date', timestamp: userFacingTrigger.getTime() };
   } else if (typeof userFacingTrigger === 'number') {
     return { type: 'date', timestamp: userFacingTrigger };
+  } else if (isYearlyTriggerInput(userFacingTrigger)) {
+    const numberOrDate = userFacingTrigger.date;
+    const repeats = userFacingTrigger.repeats ?? false;
+    if (Platform.OS === 'ios' && repeats) {
+      const date = typeof numberOrDate === 'number' ? new Date(numberOrDate) : numberOrDate;
+      return {
+        type: 'calendar',
+        value: {
+          month: date.getMonth(),
+          day: date.getDate(),
+          minute: date.getMinutes(),
+          second: date.getSeconds(),
+        },
+        repeats: true,
+      };
+    }
+    const timestamp = typeof numberOrDate === 'number' ? numberOrDate : numberOrDate.getTime();
+    return { type: 'date', timestamp, repeats };
   } else if (isDailyTriggerInput(userFacingTrigger)) {
     const hour = userFacingTrigger.hour;
     const minute = userFacingTrigger.minute;
@@ -78,6 +98,12 @@ function isDailyTriggerInput(
     'repeats' in trigger &&
     trigger.repeats === true
   );
+}
+
+function isYearlyTriggerInput(
+  trigger: YearlyTriggerInput | TimeIntervalTriggerInput | DailyTriggerInput | CalendarTriggerInput
+): trigger is YearlyTriggerInput {
+  return 'date' in trigger;
 }
 
 function isSecondsPropertyMisusedInCalendarTriggerInput(

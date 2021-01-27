@@ -125,7 +125,11 @@ export interface DailyTriggerInput {
     minute: number;
     repeats: true;
 }
-export declare type DateTriggerInput = Date | number;
+export declare type YearlyTriggerInput = {
+    repeats?: boolean;
+    date: Date | number;
+};
+export declare type DateTriggerInput = Date | number | YearlyTriggerInput;
 export declare type NotificationTriggerInput = null | DateTriggerInput | TimeIntervalTriggerInput | DailyTriggerInput | CalendarTriggerInput;
 export declare enum AndroidNotificationPriority {
     MIN = "min",

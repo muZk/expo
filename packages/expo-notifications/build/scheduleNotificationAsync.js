@@ -1,3 +1,4 @@
+import { Platform } from '@unimodules/core';
 import uuidv4 from 'uuid/v4';
 import NotificationScheduler from './NotificationScheduler';
 export default async function scheduleNotificationAsync(request) {
@@ -15,6 +16,25 @@ function parseTrigger(userFacingTrigger) {
     }
     else if (typeof userFacingTrigger === 'number') {
         return { type: 'date', timestamp: userFacingTrigger };
+    }
+    else if (isYearlyTriggerInput(userFacingTrigger)) {
+        const numberOrDate = userFacingTrigger.date;
+        const repeats = userFacingTrigger.repeats ?? false;
+        if (Platform.OS === 'ios' && repeats) {
+            const date = typeof numberOrDate === 'number' ? new Date(numberOrDate) : numberOrDate;
+            return {
+                type: 'calendar',
+                value: {
+                    month: date.getMonth(),
+                    day: date.getDate(),
+                    minute: date.getMinutes(),
+                    second: date.getSeconds(),
+                },
+                repeats: true,
+            };
+        }
+        const timestamp = typeof numberOrDate === 'number' ? numberOrDate : numberOrDate.getTime();
+        return { type: 'date', timestamp, repeats };
     }
     else if (isDailyTriggerInput(userFacingTrigger)) {
         const hour = userFacingTrigger.hour;
@@ -55,6 +75,9 @@ function isDailyTriggerInput(trigger) {
         'minute' in trigger &&
         'repeats' in trigger &&
         trigger.repeats === true);
+}
+function isYearlyTriggerInput(trigger) {
+    return 'date' in trigger;
 }
 function isSecondsPropertyMisusedInCalendarTriggerInput(trigger) {
     return (

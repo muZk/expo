@@ -2,6 +2,7 @@ package expo.modules.notifications.notifications.triggers;
 
 import android.os.Parcel;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import androidx.annotation.Nullable;
@@ -12,13 +13,19 @@ import expo.modules.notifications.notifications.interfaces.SchedulableNotificati
  */
 public class DateTrigger implements SchedulableNotificationTrigger {
   private Date mTriggerDate;
+  private boolean mRepeats;
 
-  public DateTrigger(long timestamp) {
+  public DateTrigger(long timestamp, boolean repeats) {
     mTriggerDate = new Date(timestamp);
   }
 
   private DateTrigger(Parcel in) {
     mTriggerDate = new Date(in.readLong());
+    mRepeats = in.readByte() == 1;
+  }
+
+  public boolean isRepeating() {
+    return mRepeats;
   }
 
   public Date getTriggerDate() {
@@ -29,6 +36,13 @@ public class DateTrigger implements SchedulableNotificationTrigger {
   @Override
   public Date nextTriggerDate() {
     Date now = new Date();
+
+    if (mRepeats && mTriggerDate.before(now)) {
+      Calendar nextTriggerDate = Calendar.getInstance();
+      nextTriggerDate.setTime(mTriggerDate);
+      nextTriggerDate.add(Calendar.YEAR, 1);
+      mTriggerDate = nextTriggerDate.getTime();
+    }
 
     if (mTriggerDate.before(now)) {
       return null;
@@ -45,6 +59,7 @@ public class DateTrigger implements SchedulableNotificationTrigger {
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeLong(mTriggerDate.getTime());
+    dest.writeByte((byte) (mRepeats ? 1 : 0));
   }
 
   public static final Creator<DateTrigger> CREATOR = new Creator<DateTrigger>() {

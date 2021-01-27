@@ -139,7 +139,7 @@ public class NotificationScheduler extends ExportedModule {
         if (!(params.get("timestamp") instanceof Number)) {
           throw new InvalidArgumentException("Invalid value provided as date of trigger.");
         }
-        return new DateTrigger(((Number) params.get("timestamp")).longValue());
+        return new DateTrigger(((Number) params.get("timestamp")).longValue(), params.getBoolean("repeats"));
       case "daily":
         if (!(params.get("hour") instanceof Number) || !(params.get("minute") instanceof Number)) {
           throw new InvalidArgumentException("Invalid value(s) provided for daily trigger.");

@@ -149,7 +149,7 @@ public class NotificationSerializer {
       bundle.putLong("seconds", ((TimeIntervalTrigger) trigger).getTimeInterval());
     } else if (trigger instanceof DateTrigger) {
       bundle.putString("type", "date");
-      bundle.putBoolean("repeats", false);
+      bundle.putBoolean("repeats", ((DateTrigger) trigger).isRepeating());
       bundle.putLong("value", ((DateTrigger) trigger).getTriggerDate().getTime());
     } else if (trigger instanceof DailyTrigger) {
       bundle.putString("type", "daily");
